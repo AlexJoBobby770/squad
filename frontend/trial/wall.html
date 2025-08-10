@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SquadBoard - Wall</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div class="container">
+    <h1>🔥 Squad Wall</h1>
+    
+    <form id="postForm" class="form-card">
+      <textarea id="postContent" placeholder="What's on your mind?" required></textarea>
+      <input type="text" id="imageURL" placeholder="Image URL (optional)">
+      <button type="submit">Post</button>
+    </form>
+
+    <div id="posts" class="post-list">
+      <!-- Posts will load here -->
+    </div>
+  </div>
+
+  <script src="js/wall.js"></script>
+</body>
+</html>
