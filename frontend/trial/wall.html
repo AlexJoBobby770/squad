@@ -8,7 +8,14 @@
 </head>
 <body>
   <div class="container">
-    <h1>🔥 Squad Wall</h1>
+    <div class="navbar">
+      <h1>🔥 Squad Wall</h1>
+      <div>
+        <a href="wall.html" class="nav-link active">Wall</a>
+        <a href="tasks.html" class="nav-link">Tasks</a>
+        <button id="logoutBtn" class="logout-btn">Logout</button>
+      </div>
+    </div>
     
     <form id="postForm" class="form-card">
       <textarea id="postContent" placeholder="What's on your mind?" required></textarea>
@@ -17,7 +24,7 @@
     </form>
 
     <div id="posts" class="post-list">
-      <!-- Posts will load here -->
+      <p style="text-align:center; color:#666;">Loading posts...</p>
     </div>
   </div>
 
