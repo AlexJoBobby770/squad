@@ -8,7 +8,14 @@
 </head>
 <body>
   <div class="container">
-    <h1>✅ Squad Tasks</h1>
+    <div class="navbar">
+      <h1>✅ Squad Tasks</h1>
+      <div>
+        <a href="wall.html" class="nav-link">Wall</a>
+        <a href="tasks.html" class="nav-link active">Tasks</a>
+        <button id="logoutBtn" class="logout-btn">Logout</button>
+      </div>
+    </div>
     
     <form id="taskForm" class="form-card">
       <input type="text" id="taskName" placeholder="New task..." required>
@@ -16,7 +23,7 @@
     </form>
 
     <ul id="taskList" class="task-list">
-      <!-- Tasks will load here -->
+      <li style="text-align:center; color:#666;">Loading tasks...</li>
     </ul>
   </div>
 
