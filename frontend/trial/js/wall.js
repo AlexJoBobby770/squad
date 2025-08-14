@@ -1,4 +1,4 @@
-// Check if user is logged in
+
 function checkAuth() {
   const token = localStorage.getItem("token");
   if (!token) {
@@ -8,7 +8,6 @@ function checkAuth() {
   return token;
 }
 
-// Load and display posts
 async function loadPosts() {
   const token = checkAuth();
   if (!token) return;
@@ -46,7 +45,6 @@ async function loadPosts() {
   }
 }
 
-// Handle new post submission
 document.addEventListener('DOMContentLoaded', function() {
   const token = checkAuth();
   if (!token) return;
@@ -79,7 +77,7 @@ document.addEventListener('DOMContentLoaded', function() {
         if (res.ok) {
           document.getElementById("postContent").value = "";
           document.getElementById("imageURL").value = "";
-          loadPosts(); // Refresh posts
+          loadPosts();
         } else {
           alert(data.message || "Error creating post");
         }
@@ -89,10 +87,9 @@ document.addEventListener('DOMContentLoaded', function() {
     });
   }
 
-  // Load posts when page loads
   loadPosts();
 
-  // Add logout button functionality (you can add this button to your HTML)
+ 
   const logoutBtn = document.getElementById("logoutBtn");
   if (logoutBtn) {
     logoutBtn.addEventListener("click", () => {
