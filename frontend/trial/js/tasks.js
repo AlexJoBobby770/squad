@@ -1,4 +1,4 @@
-// Check if user is logged in
+
 function checkAuth() {
   const token = localStorage.getItem("token");
   if (!token) {
@@ -8,7 +8,6 @@ function checkAuth() {
   return token;
 }
 
-// Load and display tasks
 async function loadTasks() {
   const token = checkAuth();
   if (!token) return;
