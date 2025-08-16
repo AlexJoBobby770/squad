@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SquadBoard - Tasks</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div class="container">
+    <div class="navbar">
+      <h1>✅ Squad Tasks</h1>
+      <div>
+        <a href="wall.html" class="nav-link">Wall</a>
+        <a href="tasks.html" class="nav-link active">Tasks</a>
+        <button id="logoutBtn" class="logout-btn">Logout</button>
+      </div>
+    </div>
+    
+    <form id="taskForm" class="form-card">
+      <input type="text" id="taskName" placeholder="New task..." required>
+      <button type="submit">Add Task</button>
+    </form>
+
+    <ul id="taskList" class="task-list">
+      <li style="text-align:center; color:#666;">Loading tasks...</li>
+    </ul>
+  </div>
+
+  <script src="js/tasks.js"></script>
+</body>
+</html>

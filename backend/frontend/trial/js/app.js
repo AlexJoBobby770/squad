@@ -16,5 +16,5 @@
         div.classList.add('message');
         div.innerHTML = `<strong>${sender}:</strong> ${text}`;
         messagesDiv.appendChild(div);
-        messagesDiv.scrollTop = messagesDiv.scrollHeight; 
+        messagesDiv.scrollTop = messagesDiv.scrollHeight; // auto scroll
     }
