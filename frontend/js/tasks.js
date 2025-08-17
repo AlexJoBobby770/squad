@@ -57,7 +57,7 @@ async function loadTasks() {
   }
 }
 
-// Complete a task
+
 async function completeTask(taskId) {
   const token = checkAuth();
   if (!token) return;
@@ -73,7 +73,7 @@ async function completeTask(taskId) {
     });
 
     if (res.ok) {
-      loadTasks(); // Refresh tasks
+      loadTasks(); 
     } else {
       alert("Error completing task");
     }
@@ -82,7 +82,7 @@ async function completeTask(taskId) {
   }
 }
 
-// Delete a task
+
 async function deleteTask(taskId) {
   if (!confirm("Are you sure you want to delete this task?")) return;
   
@@ -96,7 +96,7 @@ async function deleteTask(taskId) {
     });
 
     if (res.ok) {
-      loadTasks(); // Refresh tasks
+      loadTasks(); 
     } else {
       alert("Error deleting task");
     }
@@ -105,7 +105,7 @@ async function deleteTask(taskId) {
   }
 }
 
-// Handle new task submission
+
 document.addEventListener('DOMContentLoaded', function() {
   const token = checkAuth();
   if (!token) return;
@@ -136,7 +136,7 @@ document.addEventListener('DOMContentLoaded', function() {
         
         if (res.ok) {
           document.getElementById("taskName").value = "";
-          loadTasks(); // Refresh tasks
+          loadTasks(); 
         } else {
           alert(data.message || "Error creating task");
         }
@@ -146,6 +146,5 @@ document.addEventListener('DOMContentLoaded', function() {
     });
   }
 
-  // Load tasks when page loads
   loadTasks();
 });
