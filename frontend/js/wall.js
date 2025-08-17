@@ -1,9 +1,11 @@
-
+// Configuration
 const API_BASE = 'http://localhost:5000/api';
 const MAX_CONTENT_LENGTH = 500;
 
+// State management
 let isLoading = false;
 
+// Utility functions
 function escapeHtml(text) {
   const div = document.createElement('div');
   div.textContent = text;
@@ -23,6 +25,7 @@ function formatRelativeTime(dateString) {
   return date.toLocaleDateString();
 }
 
+// Authentication functions
 function checkAuth() {
   const token = localStorage.getItem('token');
   if (!token) {
@@ -37,6 +40,7 @@ function handleAuthError() {
   window.location.href = 'index.html';
 }
 
+// API functions
 async function apiRequest(url, options = {}) {
   const token = checkAuth();
   if (!token) return null;
@@ -62,6 +66,7 @@ async function apiRequest(url, options = {}) {
   }
 }
 
+// Post loading function
 async function loadPosts() {
   if (isLoading) return;
   isLoading = true;
@@ -109,18 +114,20 @@ async function loadPosts() {
   }
 }
 
+// Image preview functions
 function showImagePreview(file) {
   const preview = document.getElementById('imagePreview');
   const previewImg = document.getElementById('previewImage');
   
   if (file) {
-   
+    // Validate file size (max 5MB)
     if (file.size > 5 * 1024 * 1024) {
       alert('Image size must be less than 5MB');
       document.getElementById('imageUpload').value = '';
       return;
     }
- 
+    
+    // Validate file type
     if (!file.type.startsWith('image/')) {
       alert('Please select a valid image file');
       document.getElementById('imageUpload').value = '';
@@ -145,6 +152,7 @@ function hideImagePreview() {
   imageUpload.value = '';
 }
 
+// Character count function
 function updateCharacterCount() {
   const content = document.getElementById('postContent').value;
   const charCount = document.getElementById('charCount');
@@ -152,6 +160,7 @@ function updateCharacterCount() {
   
   charCount.textContent = `${length}/${MAX_CONTENT_LENGTH}`;
   
+  // Update styling based on character count
   charCount.className = 'character-count';
   if (length > MAX_CONTENT_LENGTH * 0.9) {
     charCount.className += ' danger';
@@ -160,12 +169,14 @@ function updateCharacterCount() {
   }
 }
 
+// Form validation
 function validateForm() {
   const content = document.getElementById('postContent').value.trim();
   const imageFile = document.getElementById('imageUpload').files[0];
   const postBtn = document.getElementById('postBtn');
   
-  const isValid = content || imageFile;
+  // For now, only validate content since image upload isn't implemented
+  const isValid = content.length > 0;
   const isContentValid = content.length <= MAX_CONTENT_LENGTH;
   
   postBtn.disabled = !isValid || !isContentValid;
@@ -173,12 +184,22 @@ function validateForm() {
   return isValid && isContentValid;
 }
 
-
-async function createPost(formData) {
+// Post creation function
+async function createPost(content, imageFile) {
   try {
+    // For now, we'll send as JSON since your backend expects imageURL
+    // In a real app, you'd upload the image to a service like Cloudinary first
+    const postData = {
+      content: content || '',
+      imageURL: '' // For now, empty since we need image upload service
+    };
+
     const response = await apiRequest(`${API_BASE}/posts`, {
       method: 'POST',
-      body: formData
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify(postData)
     });
     
     if (!response) return { success: false, message: 'Authentication failed' };
@@ -196,7 +217,7 @@ async function createPost(formData) {
   }
 }
 
-
+// Event handlers
 function handleFormSubmit(e) {
   e.preventDefault();
   
@@ -218,25 +239,37 @@ async function submitPost() {
     const content = document.getElementById('postContent').value.trim();
     const imageFile = document.getElementById('imageUpload').files[0];
     
-    const formData = new FormData();
-    if (content) formData.append('content', content);
-    if (imageFile) formData.append('image', imageFile);
+    // For now, we'll ignore the image since backend expects URL, not file
+    if (imageFile) {
+      alert('Image upload feature will be available soon! For now, please post text only.');
+      postBtn.disabled = false;
+      postBtn.textContent = originalText;
+      return;
+    }
     
-    const result = await createPost(formData);
+    if (!content) {
+      alert('Please write something to post!');
+      postBtn.disabled = false;
+      postBtn.textContent = originalText;
+      return;
+    }
+    
+    const result = await createPost(content, null);
     
     if (result.success) {
-      
+      // Reset form
       document.getElementById('postContent').value = '';
       hideImagePreview();
       updateCharacterCount();
       validateForm();
       
+      // Show success feedback
       postBtn.textContent = '✓ Posted!';
       setTimeout(() => {
         postBtn.textContent = originalText;
       }, 2000);
       
-      
+      // Reload posts
       loadPosts();
     } else {
       alert(result.message);
@@ -259,11 +292,11 @@ function handleLogout() {
   }
 }
 
-
+// Auto-refresh functionality
 let refreshInterval;
 
 function startAutoRefresh() {
-  
+  // Refresh posts every 30 seconds
   refreshInterval = setInterval(() => {
     if (!isLoading) {
       loadPosts();
@@ -278,7 +311,7 @@ function stopAutoRefresh() {
   }
 }
 
-
+// Visibility change handler to pause refresh when tab is hidden
 function handleVisibilityChange() {
   if (document.hidden) {
     stopAutoRefresh();
@@ -287,22 +320,25 @@ function handleVisibilityChange() {
   }
 }
 
-
+// Initialize application
 document.addEventListener('DOMContentLoaded', function() {
   const token = checkAuth();
   if (!token) return;
   
+  // Get DOM elements
   const postContent = document.getElementById('postContent');
   const imageUpload = document.getElementById('imageUpload');
   const removeImageBtn = document.getElementById('removeImage');
   const postForm = document.getElementById('postForm');
   const logoutBtn = document.getElementById('logoutBtn');
   
+  // Character count tracking
   postContent.addEventListener('input', () => {
     updateCharacterCount();
     validateForm();
   });
- 
+  
+  // Prevent form submission on Enter (allow Shift+Enter for new lines)
   postContent.addEventListener('keydown', (e) => {
     if (e.key === 'Enter' && !e.shiftKey) {
       e.preventDefault();
@@ -312,36 +348,38 @@ document.addEventListener('DOMContentLoaded', function() {
     }
   });
   
+  // Image upload handling
   imageUpload.addEventListener('change', function() {
     showImagePreview(this.files[0]);
     validateForm();
   });
   
-
+  // Remove image button
   removeImageBtn.addEventListener('click', () => {
     hideImagePreview();
     validateForm();
   });
   
-
+  // Form submission
   postForm.addEventListener('submit', handleFormSubmit);
   
- 
+  // Logout functionality
   logoutBtn.addEventListener('click', handleLogout);
   
-  
+  // Visibility change handler
   document.addEventListener('visibilitychange', handleVisibilityChange);
   
-
+  // Window beforeunload handler
   window.addEventListener('beforeunload', stopAutoRefresh);
-
+  
+  // Initial setup
   updateCharacterCount();
   validateForm();
   loadPosts();
   startAutoRefresh();
 });
 
-
+// Legacy function for backward compatibility
 function showImagePreview(input) {
   if (input && input.files && input.files[0]) {
     showImagePreview(input.files[0]);
