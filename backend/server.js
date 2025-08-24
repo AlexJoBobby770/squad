@@ -8,7 +8,7 @@ require('dotenv').config();
 // Import models
 const User = require('./models/user');
 const Post = require('./models/post');
-const Task = require('./models/task');
+const Task = require('./models/tasks');
 
 const app = express();
 
