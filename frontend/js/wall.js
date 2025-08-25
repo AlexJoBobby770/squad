@@ -25,6 +25,7 @@ function formatRelativeTime(dateString) {
   return date.toLocaleDateString();
 }
 
+
 // Authentication functions
 function checkAuth() {
   const token = localStorage.getItem('token');
@@ -379,9 +380,3 @@ document.addEventListener('DOMContentLoaded', function() {
   startAutoRefresh();
 });
 
-// Legacy function for backward compatibility
-function showImagePreview(input) {
-  if (input && input.files && input.files[0]) {
-    showImagePreview(input.files[0]);
-  }
-}
