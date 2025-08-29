@@ -12,59 +12,56 @@ const Task = require('./models/tasks');
 
 const app = express();
 
-// Middleware
+// ===== BASIC SETUP =====
 app.use(cors());
 app.use(express.json());
 
-// Connect to MongoDB
+// ===== DATABASE CONNECTION =====
 mongoose.connect(process.env.MONGO_URI)
   .then(() => console.log("MongoDB connected ✅"))
   .catch((err) => console.error("MongoDB connection error:", err));
 
-// Auth middleware
+// ===== HELPER FUNCTIONS =====
 const authenticateToken = (req, res, next) => {
-  const authHeader = req.headers['authorization'];
-  const token = authHeader && authHeader.split(' ')[1];
-
+  const token = req.headers['authorization']?.split(' ')[1];
+  
   if (!token) {
     return res.status(401).json({ message: 'No token provided' });
   }
 
   jwt.verify(token, process.env.JWT_SECRET, (err, user) => {
-    if (err) {
-      return res.status(403).json({ message: 'Invalid token' });
-    }
+    if (err) return res.status(403).json({ message: 'Invalid token' });
     req.user = user;
     next();
   });
 };
 
-// Routes
+// ===== ROUTES =====
 
-// Home route
+// Home page
 app.get("/", (req, res) => {
-  res.send("SquladBoard Backend Running ✅");
+  res.send("SquadBoard Backend Running ✅");
 });
 
-// Register new user
+// ===== AUTH ROUTES =====
+
+// Register
 app.post("/api/register", async (req, res) => {
   try {
     const { name, email, password } = req.body;
-
-    // Check if user already exists
-    const existingUser = await User.findOne({ email });
-    if (existingUser) {
+    
+    // Check if user exists
+    if (await User.findOne({ email })) {
       return res.status(400).json({ message: "User already exists" });
     }
 
-    // Hash password and create user
+    // Create user
     const passwordHash = await bcrypt.hash(password, 10);
     const user = new User({ name, email, passwordHash });
     await user.save();
 
-    // Create JWT token
+    // Send token
     const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET, { expiresIn: '7d' });
-    
     res.json({ token, message: "User registered successfully" });
   } catch (error) {
     console.error('Register error:', error);
@@ -72,31 +69,27 @@ app.post("/api/register", async (req, res) => {
   }
 });
 
-// Login user
+// Login
 app.post("/api/login", async (req, res) => {
   try {
     const { email, password } = req.body;
-
-    // Find user and check password
-    const user = await User.findOne({ email });
-    if (!user) {
-      return res.status(400).json({ message: "Invalid credentials" });
-    }
-
-    const isPasswordValid = await bcrypt.compare(password, user.passwordHash);
-    if (!isPasswordValid) {
-      return res.status(400).json({ message: "Invalid credentials" });
-    }
-
-    // Create JWT token
-    const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET, { expiresIn: '7d' });
     
+    // Find user
+    const user = await User.findOne({ email });
+    if (!user || !(await bcrypt.compare(password, user.passwordHash))) {
+      return res.status(400).json({ message: "Invalid credentials" });
+    }
+
+    // Send token
+    const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET, { expiresIn: '7d' });
     res.json({ token, message: "Login successful" });
   } catch (error) {
     console.error('Login error:', error);
     res.status(500).json({ message: "Server error" });
   }
 });
+
+// ===== POST ROUTES =====
 
 // Get all posts
 app.get("/api/posts", authenticateToken, async (req, res) => {
@@ -109,18 +102,14 @@ app.get("/api/posts", authenticateToken, async (req, res) => {
   }
 });
 
-// Create new post
+// Create post
 app.post("/api/posts", authenticateToken, async (req, res) => {
   try {
     const { content, imageURL } = req.body;
-    
-    // Get user info
     const user = await User.findById(req.user.id);
-    if (!user) {
-      return res.status(404).json({ message: "User not found" });
-    }
+    
+    if (!user) return res.status(404).json({ message: "User not found" });
 
-    // Create post
     const post = new Post({
       content: content || '',
       imageURL: imageURL || '',
@@ -136,6 +125,8 @@ app.post("/api/posts", authenticateToken, async (req, res) => {
   }
 });
 
+// ===== TASK ROUTES =====
+
 // Get user's tasks
 app.get("/api/tasks", authenticateToken, async (req, res) => {
   try {
@@ -147,20 +138,16 @@ app.get("/api/tasks", authenticateToken, async (req, res) => {
   }
 });
 
-// Create new task
+// Create task
 app.post("/api/tasks", authenticateToken, async (req, res) => {
   try {
     const { name } = req.body;
-
-    if (!name || !name.trim()) {
+    
+    if (!name?.trim()) {
       return res.status(400).json({ message: "Task name is required" });
     }
 
-    const task = new Task({
-      name: name.trim(),
-      userId: req.user.id
-    });
-
+    const task = new Task({ name: name.trim(), userId: req.user.id });
     await task.save();
     res.status(201).json(task);
   } catch (error) {
@@ -169,7 +156,7 @@ app.post("/api/tasks", authenticateToken, async (req, res) => {
   }
 });
 
-// Update task (mark as complete/incomplete)
+// Update task
 app.put("/api/tasks/:id", authenticateToken, async (req, res) => {
   try {
     const { completed } = req.body;
@@ -180,10 +167,7 @@ app.put("/api/tasks/:id", authenticateToken, async (req, res) => {
       { new: true }
     );
 
-    if (!task) {
-      return res.status(404).json({ message: "Task not found" });
-    }
-
+    if (!task) return res.status(404).json({ message: "Task not found" });
     res.json(task);
   } catch (error) {
     console.error('Update task error:', error);
@@ -199,10 +183,7 @@ app.delete("/api/tasks/:id", authenticateToken, async (req, res) => {
       userId: req.user.id
     });
 
-    if (!task) {
-      return res.status(404).json({ message: "Task not found" });
-    }
-
+    if (!task) return res.status(404).json({ message: "Task not found" });
     res.json({ message: "Task deleted successfully" });
   } catch (error) {
     console.error('Delete task error:', error);
@@ -210,7 +191,7 @@ app.delete("/api/tasks/:id", authenticateToken, async (req, res) => {
   }
 });
 
-// Start server
+// ===== START SERVER =====
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT} 🚀`);
